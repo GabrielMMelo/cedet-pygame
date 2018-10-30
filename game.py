@@ -18,6 +18,14 @@ class Player:
         self.image = pygame.image.load("resources/images/player.png")
         self.rect = None
         self.speed = speed
+        self.health = Health()
+
+class Health:
+    def __init__(self, count=200):
+        self.image = pygame.image.load("resources/images/healthbar.png")
+        self.fill = pygame.image.load("resources/images/health.png")
+        self.count = count
+        self.position = [5,5]
 
 class Troll:
     def __init__(self, position=[200,200], speed=6, health=4):
@@ -30,7 +38,7 @@ class Troll:
 
 class Background:
     def __init__(self):
-        self.image = pygame.image.load("resources/images/bg.png")
+        self.image = [pygame.image.load("resources/images/bg.png"), pygame.image.load("resources/images/gameover.png")]
         self.position = [0,0]
 
 class App:
@@ -42,8 +50,8 @@ class App:
         self.player = Player()
         self.keys = [False, False, False, False] 
         self.enemies = []
-        #self.enemies.append(Enemy())
         self.books = []
+        self.gameover = False
         # To control thread call
         self.flag = True
  
@@ -134,7 +142,12 @@ class App:
             enemy.rect.left = enemy.position[0]
             # Collision between player and enemy
             if enemy.select == 0 and enemy.rect.colliderect(self.player.rect):
+                self.player.health.count -= 2 
+            
+            elif enemy.select == 0 and enemy.position[0] < (0 - enemy.rect.width):
                 self.enemies.pop(idx)
+                self.player.health.count -= 25
+
             # Collision between book and enemy
             else:
                 for idx2,book in enumerate(self.books):
@@ -146,16 +159,25 @@ class App:
                             enemy.speed = 15
                             break
                         enemy.health -= 1 
+            if self.player.health.count <= 0:
+                self.gameover = True;
 
     # Draw screen with changes made
     def on_render(self):
         self._display_surf.fill(0)
-        self._display_surf.blit(self.background.image, self.background.position)
-        self._display_surf.blit(self.player.image, self.player.position)
-        for enemy in self.enemies:
-            self._display_surf.blit(enemy.image[enemy.select], enemy.position)
-        for book in self.books:
-            self._display_surf.blit(book.image, book.position)
+        if not self.gameover:
+            self._display_surf.blit(self.background.image[0], self.background.position)
+            self._display_surf.blit(self.player.image, self.player.position)
+            self._display_surf.blit(self.player.health.image, self.player.health.position)
+            for i in range(self.player.health.count):
+                self._display_surf.blit(self.player.health.fill, (self.player.health.position[0] + 3 + i, self.player.health.position[1] + 3))
+            for enemy in self.enemies:
+                self._display_surf.blit(enemy.image[enemy.select], enemy.position)
+            for book in self.books:
+                self._display_surf.blit(book.image, book.position)
+        else:
+            self._display_surf.blit(self.background.image[1], self.background.position)
+
         pygame.display.flip()
 
     # Finish pygame
