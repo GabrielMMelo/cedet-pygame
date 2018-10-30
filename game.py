@@ -6,34 +6,43 @@ import time
 import threading
 
 class Book:
-    def __init__(self, position):
+    def __init__(self, position, speed=8):
         self.image = pygame.image.load("resources/images/book.png")
         self.position = position
         self.rect = None
+        self.speed = speed
 
 class Player:
     def __init__(self, speed=5):
         self.position = [100,100]
-        self.image = pygame.image.load("resources/images/player2.png")
+        self.image = pygame.image.load("resources/images/player.png")
         self.rect = None
         self.speed = speed
 
-class Enemy:
-    def __init__(self, position=[200,200], speed=0.4):
+class Troll:
+    def __init__(self, position=[200,200], speed=6, health=4):
         self.position = position
-        self.image = pygame.image.load("resources/images/enemy2.png")
+        self.image = [pygame.image.load("resources/images/enemy2.png"),pygame.image.load("resources/images/healed.png")]
+        self.select = 0
         self.rect = None
         self.speed = speed
+        self.health = health
+
+class Background:
+    def __init__(self):
+        self.image = pygame.image.load("resources/images/bg.png")
+        self.position = [0,0]
 
 class App:
     def __init__(self):
         self._running = True
         self._display_surf = None
         self.size = self.weight, self.height = 1000, 800
+        self.background = Background()
         self.player = Player()
         self.keys = [False, False, False, False] 
         self.enemies = []
-        self.enemies.append(Enemy())
+        #self.enemies.append(Enemy())
         self.books = []
         # To control thread call
         self.flag = True
@@ -76,8 +85,8 @@ class App:
 
     def summon_enemy(self):
         self.flag = False
-        self.enemies.append(Enemy(list([self.weight, random.randint(50,self.height - 100)])))    
-        time.sleep(3)
+        self.enemies.append(Troll(list([self.weight, random.randint(50,self.height - 200)]), random.randint(6,10)))
+        time.sleep(random.randint(1,3))
         self.flag = True
 
     # Process program logic
@@ -110,7 +119,7 @@ class App:
         for idx,book in enumerate(self.books):
             if book.position[0] > (self.weight + 31):
                 self.books.pop(idx)
-            book.position[0]+=2 
+            book.position[0] += book.speed 
             book.rect = pygame.Rect(book.position[0], book.position[1], book.image.get_width(), book.image.get_height())
         
         if self.flag:
@@ -120,25 +129,31 @@ class App:
         # Move enemy
         for idx,enemy in enumerate(self.enemies):
             enemy.position[0] -= enemy.speed
-            enemy.rect = pygame.Rect(enemy.image.get_rect())
+            enemy.rect = pygame.Rect(enemy.image[enemy.select].get_rect())
             enemy.rect.top = enemy.position[1]
             enemy.rect.left = enemy.position[0]
             # Collision between player and enemy
-            if enemy.rect.colliderect(self.player.rect):
+            if enemy.select == 0 and enemy.rect.colliderect(self.player.rect):
                 self.enemies.pop(idx)
             # Collision between book and enemy
             else:
                 for idx2,book in enumerate(self.books):
                     if enemy.rect.colliderect(book.rect):
-                        self.enemies.pop(idx)
                         self.books.pop(idx2)
+                        if enemy.health == 0:
+                            #self.enemies.pop(idx)
+                            enemy.select = 1
+                            enemy.speed = 15
+                            break
+                        enemy.health -= 1 
 
     # Draw screen with changes made
     def on_render(self):
         self._display_surf.fill(0)
+        self._display_surf.blit(self.background.image, self.background.position)
         self._display_surf.blit(self.player.image, self.player.position)
         for enemy in self.enemies:
-            self._display_surf.blit(enemy.image, enemy.position)
+            self._display_surf.blit(enemy.image[enemy.select], enemy.position)
         for book in self.books:
             self._display_surf.blit(book.image, book.position)
         pygame.display.flip()
@@ -152,7 +167,7 @@ class App:
         if self.on_init() == False:
             self._running = False
  
-        while( self._running ):
+        while(self._running):
             for event in pygame.event.get():
                 self.on_event(event)
             self.on_loop()
