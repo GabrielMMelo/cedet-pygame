@@ -6,12 +6,8 @@ import time
 import threading
 
 class Book:
-    def __init__(self, position, speed=8):
-        self.image = pygame.image.load("resources/images/book.png")
-        self.position = position
-        self.rect = None
-        self.speed = speed
-
+    def __init__(self):
+        pass
 class Player:
     def __init__(self, speed=5):
         self.position = [100,100]
