@@ -5,9 +5,12 @@ import random
 import time
 import threading
 
-class Book:
-    def __init__(self):
-        pass
+class Pokebola:
+	def __init__(self, position, speed=5):
+		self.image = pygame.image.load("resources/images/pokebola.png") 
+		self.position = position
+		self.speed = speed
+
 class Player:
     def __init__(self, speed=5):
         self.position = [100,100]
@@ -19,12 +22,15 @@ class Player:
 class Health:
     def __init__(self, count=200):
         pass
+
 class Troll:
     def __init__(self, position=[200,200], speed=6, health=4):
         pass
+
 class Background:
     def __init__(self):
         pass
+
 class App:
     def __init__(self):
         self._running = True
@@ -34,7 +40,7 @@ class App:
         self.player = Player()
         self.keys = [False, False, False, False] 
         self.enemies = []
-        self.books = []
+        self.pokebolas = []
         self.gameover = False
         # To control thread call
         self.flag = True
@@ -61,9 +67,9 @@ class App:
             elif event.key == K_d:
                 self.keys[3] = True
 
-            # Throw book
+            # Throw pokebola
             elif event.key == K_SPACE:
-                self.books.append(Book(list([self.player.position[0]+45, self.player.position[1]+50])))
+                self.pokebolas.append(Pokebola(list([self.player.position[0]+45, self.player.position[1]+50])))
 
         if event.type == pygame.KEYUP:
             if event.key == K_w:
@@ -77,6 +83,7 @@ class App:
 
     def summon_enemy(self):
         pass
+
     # Process program logic
     def on_loop(self):
         # Move player
@@ -103,12 +110,12 @@ class App:
 
         self.player.rect = pygame.Rect(self.player.position[0], self.player.position[1], self.player.image.get_width(), self.player.image.get_height())
         
-        # Move book
-        for idx,book in enumerate(self.books):
-            if book.position[0] > (self.weight + 31):
-                self.books.pop(idx)
-            book.position[0] += book.speed 
-            book.rect = pygame.Rect(book.position[0], book.position[1], book.image.get_width(), book.image.get_height())
+        # Move pokebola
+        for idx,pokebola in enumerate(self.pokebolas):
+            if pokebola.position[0] > (self.weight + 31):
+                self.pokebolas.pop(idx)
+            pokebola.position[0] += pokebola.speed 
+            pokebola.rect = pygame.Rect(pokebola.position[0], pokebola.position[1], pokebola.image.get_width(), pokebola.image.get_height())
         
         if self.flag:
             #t = threading.Thread(target=self.summon_enemy)
@@ -125,8 +132,8 @@ class App:
         #self._display_surf.blit(self.player.health.image, self.player.health.position)
         #for i in range(self.player.health.count):
             #self._display_surf.blit(self.player.health.fill, (self.player.health.position[0] + 3 + i, self.player.health.position[1] + 3))
-        for book in self.books:
-            pass
+        for pokebola  in self.pokebolas:
+            self._display_surf.blit(pokebola.image, pokebola.position)
 
         pygame.display.flip()
 
