@@ -23,9 +23,11 @@ class Health:
     def __init__(self, count=200):
         pass
 
-class Troll:
+class Pokemon:
     def __init__(self, position=[200,200], speed=6, health=4):
-        pass
+        self.position = position
+	self.speed = speed
+	self.health = health
 
 class Background:
     def __init__(self):
@@ -41,23 +43,24 @@ class App:
         self.keys = [False, False, False, False] 
         self.enemies = []
         self.pokebolas = []
+	self.pokemons = []
         self.gameover = False
         # To control thread call
         self.flag = True
  
-    # Init pygame module
+    # Inicia a configuração do jogo
     def on_init(self):
         pygame.init()
         self._display_surf = pygame.display.set_mode(self.size, pygame.HWSURFACE | pygame.DOUBLEBUF)
         self._running = True
  
-    # Event handler
+    # Gerenciador de eventos (como cliques na tela, pressionamento de botões)
     def on_event(self, event):
         if event.type == pygame.QUIT:
             self._running = False
 
         if event.type == pygame.KEYDOWN:
-            # Movement
+            # Movimento
             if event.key == K_w:
                 self.keys[0] = True
             elif event.key == K_a:
@@ -81,8 +84,11 @@ class App:
             elif event.key == K_d:
                 self.keys[3] = False
 
-    def summon_enemy(self):
-        pass
+    def summon_pokemon(self):
+        self.flag = False
+	self.pokemons.append(Pokemon(list([self.weight, random.randint(50, self.height - 200)], random.randint(6,10)))
+	time.sleep(random.randint(1,3))
+	self.flag = True
 
     # Process program logic
     def on_loop(self):
@@ -129,6 +135,8 @@ class App:
         self._display_surf.fill(0)
         #self._display_surf.blit(self.background.image[0], self.background.position)
         self._display_surf.blit(self.player.image, self.player.position)
+	for pokemon in self.pokemons:
+		self._display_surf.blit(pokemon.image, pokemon.position) 
         #self._display_surf.blit(self.player.health.image, self.player.health.position)
         #for i in range(self.player.health.count):
             #self._display_surf.blit(self.player.health.fill, (self.player.health.position[0] + 3 + i, self.player.health.position[1] + 3))
