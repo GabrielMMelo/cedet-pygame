@@ -6,13 +6,13 @@ import time
 import threading
 
 class Pokebola:
-	def __init__(self, position, speed=5):
+	def __init__(self, position, speed=2):
 		self.image = pygame.image.load("resources/images/pokebola.png") 
 		self.position = position
 		self.speed = speed
 
 class Player:
-    def __init__(self, speed=5):
+    def __init__(self, speed=2):
         self.position = [100,100]
         self.image = pygame.image.load("resources/images/player.png")
         self.rect = None
@@ -24,10 +24,11 @@ class Health:
         pass
 
 class Pokemon:
-    def __init__(self, position=[200,200], speed=6, health=4):
+    def __init__(self, position=[200,200], speed=4, health=4):
         self.position = position
         self.speed = speed
         self.health = health
+        self.image = pygame.image.load("resources/images/homerchu.jpg")
 
 class Background:
     def __init__(self):
@@ -37,7 +38,7 @@ class App:
     def __init__(self):
         self._running = True
         self._display_surf = None
-        self.size = self.weight, self.height = 1000, 800
+        self.size = self.width, self.height = 1000, 800
         self.background = Background()
         self.player = Player()
         self.keys = [False, False, False, False] 
@@ -86,7 +87,7 @@ class App:
 
     def summon_pokemon(self):
         self.flag = False
-        self.pokemons.append(Pokemon(list([self.weight, random.randint(50, self.height - 200)], random.randint(6,10))))
+        self.pokemons.append(Pokemon(list([100, random.randint(50, self.height - 200)]), random.randint(6,10)))
         time.sleep(random.randint(1,3))
         self.flag = True
 
@@ -109,8 +110,8 @@ class App:
             else:
                 self.player.position[0] -= self.player.speed
         elif self.keys[3]:
-            if self.player.position[0] > (self.weight - self.player.image.get_width()):
-                self.player.position[0] = (self.weight - self.player.image.get_width())
+            if self.player.position[0] > (self.width - self.player.image.get_width()):
+                self.player.position[0] = (self.width - self.player.image.get_width())
             else:
                 self.player.position[0] += self.player.speed
 
@@ -118,15 +119,14 @@ class App:
         
         # Move pokebola
         for idx,pokebola in enumerate(self.pokebolas):
-            if pokebola.position[0] > (self.weight + 31):
+            if pokebola.position[0] > (self.width + 31):
                 self.pokebolas.pop(idx)
             pokebola.position[0] += pokebola.speed 
             pokebola.rect = pygame.Rect(pokebola.position[0], pokebola.position[1], pokebola.image.get_width(), pokebola.image.get_height())
         
         if self.flag:
-            #t = threading.Thread(target=self.summon_enemy)
-            #t.start()
-            pass
+            t = threading.Thread(target=self.summon_pokemon)
+            t.start()
 
         # TODO: Move enemy
 
