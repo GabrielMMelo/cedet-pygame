@@ -1,0 +1,10 @@
+X Imagem dos componentes
+X Velocidade dos componentes
+X Explicação colisão
+    Homerchu X pokebola
+	- decremento da vida do homerchu
+
+    Homerchu X Ash
+	- decremento da vida do ash
+
+X Vida do player
