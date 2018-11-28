@@ -28,7 +28,7 @@ class Pokemon:
         self.position = position
         self.speed = speed
         self.health = health
-        self.image = pygame.image.load("resources/images/homerchu.jpg")
+        self.image = pygame.image.load("resources/images/homerchu.png")
 
 class Background:
     def __init__(self):
@@ -87,7 +87,7 @@ class App:
 
     def summon_pokemon(self):
         self.flag = False
-        self.pokemons.append(Pokemon(list([100, random.randint(50, self.height - 200)]), random.randint(6,10)))
+        self.pokemons.append(Pokemon(list([self.width, random.randint(50, self.height - 200)]), random.randint(6,10)))
         time.sleep(random.randint(1,3))
         self.flag = True
 
@@ -129,6 +129,29 @@ class App:
             t.start()
 
         # TODO: Move enemy
+        for idx,pokemon in enumerate(self.pokemons):
+            pokemon.position[0] -= pokemon.speed
+            pokemon.rect = pygame.Rect(pokemon.image.get_rect())
+            pokemon.rect.top = pokemon.position[1]
+            pokemon.rect.left = pokemon.position[0]
+            # Collision between player and enemy
+            if pokemon.rect.colliderect(self.player.rect):
+                #self.player.health.count -= 2 
+                pass
+                            
+            elif pokemon.position[0] < (0 - pokemon.rect.width):
+                self.pokemons.pop(idx)
+                #self.player.health.count -= 25
+
+            # Collision between book and enemy
+            else:
+                for idx2,pokebola in enumerate(self.pokebolas):
+                    if pokemon.rect.colliderect(pokebola.rect):
+                        self.pokebolas.pop(idx2)
+                        if pokemon.health == 0:
+                            self.pokemons.pop(idx)
+                            break
+                        pokemon.health -= 1
 
     # Draw screen with changes made
     def on_render(self):
